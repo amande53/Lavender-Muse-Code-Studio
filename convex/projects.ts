@@ -8,13 +8,18 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
+    const name = args.name.trim();
 
     if (!identity) {
       throw new Error("Unauthorized");
     }
 
+    if (!name) {
+      throw new Error("Project name is required");
+    }
+
     await ctx.db.insert("projects", {
-      name: args.name,
+      name,
       ownerId: identity.subject,
     });
   },

@@ -23,7 +23,7 @@ export const UnauthenticatedView = () => {
           <ItemContent>
             <ItemTitle>Unauthorized Access</ItemTitle>
             <ItemDescription>
-              You are not authorized to access this resources.
+              You are not authorized to access this resource.
             </ItemDescription>
           </ItemContent>
           <ItemActions>
