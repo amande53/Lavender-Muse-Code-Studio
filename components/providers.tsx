@@ -2,12 +2,9 @@
 
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
   useAuth,
   UserButton
 } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
 import {
   Authenticated,
   AuthLoading,
