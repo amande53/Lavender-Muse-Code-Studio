@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["inngest"]
+  "cSpell.words": ["Firecrawl", "firecrawl", "inngest"],
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore"
 }
