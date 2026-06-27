@@ -1,9 +1,13 @@
-import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
-  },
+const nextConfig = {
+  // your Next config
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "your-org",
+  project: "your-project",
+
+  // This makes browser requests go through your app route first
+  tunnelRoute: "/monitoring",
+});
