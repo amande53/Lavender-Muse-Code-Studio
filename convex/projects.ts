@@ -1,42 +1,57 @@
 import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
+import { verifyAuth } from "@/convex/auth";
 
 export const create = mutation({
   args: {
     name: v.string(),
   },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const name = args.name.trim();
+  
+    handler: async (ctx, args) => {
+  const identity = await verifyAuth(ctx)
 
-    if (!identity) {
-      throw new Error("Unauthorized");
-    }
+  if (!identity) {
+    throw new Error("Unauthorized");
+  }
 
-    if (!name) {
-      throw new Error("Project name is required");
-    }
+  const projectId = await ctx.db.insert("projects", {
+    name: args.name,
+    ownerId: identity.subject,
+    updatedAt: Date.now(),
+  });
 
-    await ctx.db.insert("projects", {
-      name,
-      ownerId: identity.subject,
-    });
-  },
+  return projectId;
+},
 });
 
-export const get = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new Error("Unauthorized");
-    }
+export const getPartial = query({
+  args: {
+    limit: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await await verifyAuth(ctx)
 
     return await ctx.db
       .query("projects")
       .withIndex("by_owner", (q) => q.eq("ownerId", identity.subject))
-      .collect();
+      .order("desc")
+      .take(args.limit)
+    
+  },
+});
+
+export const get = query({
+  args: {
+   
+  },
+  handler: async (ctx) => {
+    const identity =  await verifyAuth(ctx)
+
+    return ctx.db
+      .query("projects")
+      .withIndex("by_owner", (q) => q.eq("ownerId", identity.subject))
+      .order("desc")
+      .collect()
   },
 });
