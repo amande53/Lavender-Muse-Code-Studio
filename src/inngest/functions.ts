@@ -3,7 +3,7 @@ import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 
 import { inngest } from "./client";
-import { firecrawl } from "@/src/lib/firecrawl";
+import { firecrawl } from "@/lib/firecrawl";
 
 const URL_REGEX = /https?:\/\/[^\s]+/g;
 
@@ -31,7 +31,7 @@ export const demoGenerate = inngest.createFunction(
 
     const finalPrompt = scrapedContent
       ? `Context:\n${scrapedContent}\n\Question: ${prompt}`
-      : prompt;
+      : prompt
 
     await step.run("generate-text", async () => {
       return await generateText({
