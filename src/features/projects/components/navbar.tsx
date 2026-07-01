@@ -20,7 +20,7 @@ import { CloudCheckIcon, LoaderIcon } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -32,6 +32,7 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [name, setName] = useState("");
+  const ignoreNextBlurSubmitRef = useRef(false);
 
   const handleStartRename = () => {
     if (!project) return;
@@ -49,8 +50,18 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
     renameProject({ id: projectId, name: trimmedName });
   };
 
+  const handleBlur = () => {
+    if (ignoreNextBlurSubmitRef.current) {
+      ignoreNextBlurSubmitRef.current = false;
+      return;
+    }
+
+    handleSubmit();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      ignoreNextBlurSubmitRef.current = true;
       handleSubmit();
     } else if (e.key === "Escape") {
       setIsRenaming(false);
@@ -95,7 +106,7 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onFocus={(e) => e.currentTarget.select()}
-                  onBlur={handleSubmit}
+                  onBlur={handleBlur}
                   onKeyDown={handleKeyDown}
                   className="text-sm bg-transparent text-foreground outline-none focus:ring-1 focus:ring-inset focus:ring-ring font-medium max-w-40 truncate"
                 />
@@ -112,7 +123,7 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
                   }}
                   className="text-sm cursor-pointer hover:text-primary font-medium max-w-40 truncate"
                 >
-                  {project?.name ?? " Loading..."}
+                  {project?.name ?? "Loading..."}
                 </BreadcrumbPage>
               )}
             </BreadcrumbItem>
@@ -123,6 +134,7 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
             <TooltipTrigger asChild>
               <LoaderIcon className="size-4 text-muted-foreground animate-spin" />
             </TooltipTrigger>
+            <TooltipContent>Importing project...</TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>
