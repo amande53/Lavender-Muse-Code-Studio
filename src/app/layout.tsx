@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Fira_Code, Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
+
 import { Providers } from "@/components/providers";
+
+import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
