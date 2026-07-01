@@ -3,7 +3,6 @@
 import {
   ClerkProvider,
   useAuth,
-  UserButton
 } from "@clerk/nextjs";
 import {
   Authenticated,
@@ -15,6 +14,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ThemeProvider } from "next-themes";
 import { UnauthenticatedView } from "@/features/auth/components/unauthenticated-view";
 import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
@@ -37,16 +37,17 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           enableSystem
           disableTransitionOnChange
         >
-          <Authenticated>
-            <UserButton />
-            {children}
-          </Authenticated>
-          <Unauthenticated>
-                <UnauthenticatedView />
-          </Unauthenticated>
-          <AuthLoading>
-            <AuthLoadingView />
-          </AuthLoading>
+          <TooltipProvider>
+            <Authenticated>
+              {children}
+            </Authenticated>
+            <Unauthenticated>
+                  <UnauthenticatedView />
+            </Unauthenticated>
+            <AuthLoading>
+              <AuthLoadingView />
+            </AuthLoading>
+          </TooltipProvider>
         </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
