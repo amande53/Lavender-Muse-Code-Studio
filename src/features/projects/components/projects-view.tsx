@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 
 // Fonts
+import Image from "next/image";
 import { Poppins } from "next/font/google";
 
 // Icons
@@ -58,10 +59,13 @@ export const ProjectsView = () => {
         <div className="flex justify-between gap-4 w-full items-center"></div>
 
         <div className="flex items-center gap-2 w-full group/logo">
-          <img
+          <Image
             src="/lavender-muse-code-logo.png"
             alt="Lavender Muse Code logo"
+            width={46}
+            height={46}
             className="size-[32px] md:size-[46px]"
+            priority
           />
           <h1 className={cn("text-4xl md:text-5xl font-semibold", font.className)}>
             Lavender Muse Code

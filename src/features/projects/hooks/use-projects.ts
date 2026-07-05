@@ -1,8 +1,7 @@
-import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 
 import { api } from "@/convex/_generated/api";
-import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export const useProject = (projectId: Id<"projects">) => {
   return useQuery(api.projects.getById, { id: projectId });
@@ -17,37 +16,19 @@ export const useProjectsPartial = (limit: number) => {
   });
 };
 export const useCreateProject = () => {
-  const { userId } = useAuth();
-
-  return useMutation(api.projects.create).withOptimisticUpdate((localStore, args) => {
-    const existingProjects = localStore.getQuery(api.projects.get, {});
-
-    if (existingProjects !== undefined) {
-      const now = Date.now();
-      const newProject: Doc<"projects"> = {
-        _id: crypto.randomUUID() as Id<"projects">,
-        _creationTime: now,
-        name: args.name,
-        ownerId: userId ?? "anonymous",
-        updatedAt: now,
-      };
-      localStore.setQuery(api.projects.get, {}, [newProject, ...existingProjects]);
-    }
-  });
+  return useMutation(api.projects.create);
 };
-export const useRenameProject = (projectId: Id<"projects">) => {
+export const useRenameProject = (_projectId?: Id<"projects">) => {
   return useMutation(api.projects.rename).withOptimisticUpdate((localStore, args) => {
-    const now = Date.now();
-    const existingProject = localStore.getQuery(api.projects.getById, { id: projectId });
+    const existingProject = localStore.getQuery(api.projects.getById, { id: args.id });
 
     if (existingProject !== undefined && existingProject !== null) {
       localStore.setQuery(
         api.projects.getById,
-        { id: projectId },
+        { id: args.id },
         {
           ...existingProject,
           name: args.name,
-          updatedAt: now,
         }
       );
     }
@@ -58,9 +39,7 @@ export const useRenameProject = (projectId: Id<"projects">) => {
         api.projects.get,
         {},
         existingProjects.map((project) => {
-          return project._id === args.id
-            ? { ...project, name: args.name, updatedAt: now }
-            : project;
+          return project._id === args.id ? { ...project, name: args.name } : project;
         })
       );
     }
