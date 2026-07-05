@@ -1,10 +1,17 @@
 "use client";
 
+import { Allotment } from "allotment";
 import { useState } from "react";
+import { FaGithub } from "react-icons/fa";
 
 import { Id } from "../../../../convex/_generated/dataModel";
+import { FileExplorer } from "@/features/projects/components/file-explorer";
 import { cn } from "@/lib/utils";
-import { FaGithub } from "react-icons/fa";
+
+const MIN_SIDEBAR_WIDTH = 200;
+const MAX_SIDEBAR_WIDTH = 480;
+const DEFAULT_SIDEBAR_WIDTH = 300;
+const DEFAULT_MAIN_WIDTH = 1000;
 
 const Tab = ({
   label,
@@ -45,8 +52,9 @@ export const ProjectIdView = ({ projectId }: { projectId: Id<"projects"> }) => {
           isActive={activeView === "preview"}
           onClick={() => setActiveView("preview")}
         />
-        <div className="flex-1 flex justify-end h-full"> 
-          <div className="flex items-center gap-1.5 h-full px-3 cursor-pointer text-muted-foreground hover:bg-accent/30 border-l">
+
+        <div className="flex h-full flex-1 justify-end">
+          <div className="flex h-full cursor-pointer items-center gap-1.5 border-l px-3 text-muted-foreground hover:bg-accent/30">
             <FaGithub className="size-3.5" />
             <span className="text-sm">Export</span>
           </div>
@@ -55,7 +63,20 @@ export const ProjectIdView = ({ projectId }: { projectId: Id<"projects"> }) => {
 
       <div className="relative flex-1">
         <div className={cn("absolute inset-0", activeView === "editor" ? "visible" : "invisible")}>
-          Editor
+          <Allotment defaultSizes={[DEFAULT_SIDEBAR_WIDTH, DEFAULT_MAIN_WIDTH]}>
+            <Allotment.Pane
+              snap
+              minSize={MIN_SIDEBAR_WIDTH}
+              maxSize={MAX_SIDEBAR_WIDTH}
+              preferredSize={DEFAULT_SIDEBAR_WIDTH}
+            >
+              <FileExplorer projectId={projectId} />
+            </Allotment.Pane>
+
+            <Allotment.Pane minSize={MIN_SIDEBAR_WIDTH}>
+              <p>Editor</p>
+            </Allotment.Pane>
+          </Allotment>
         </div>
 
         <div className={cn("absolute inset-0", activeView === "preview" ? "visible" : "invisible")}>

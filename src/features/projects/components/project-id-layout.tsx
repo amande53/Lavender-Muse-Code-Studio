@@ -7,8 +7,8 @@ import type { Id } from "@/convex/_generated/dataModel"
 
 import "allotment/dist/style.css"
 
-const MIN_SIDEBAR_WIDTH = 200
-const MAX_SIDEBAR_WIDTH = 800
+const MIN_SIDEBAR_WIDTH = 280
+const MAX_SIDEBAR_WIDTH = 520
 const DEFAULT_CONVERSATION_SIDE_WIDTH = 400
 const DEFAULT_MAIN_SIZE = 1000
 
@@ -48,4 +48,3 @@ export const  ProjectIdLayout = ({
     </div>
   )
 }
-
