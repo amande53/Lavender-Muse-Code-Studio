@@ -7,6 +7,7 @@ import { FaGithub } from "react-icons/fa";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { FileExplorer } from "@/features/projects/components/file-explorer";
 import { cn } from "@/lib/utils";
+import { EditorView } from "@/features/editor/components/editor-view";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 480;
@@ -40,7 +41,7 @@ export const ProjectIdView = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   return (
     <div className="flex h-full flex-col">
-      <nav className="flex h-[35px] items-center border-b bg-sidebar">
+      <nav className="flex h-8.75 items-center border-b bg-sidebar">
         <Tab
           label="Code"
           isActive={activeView === "editor"}
@@ -74,7 +75,7 @@ export const ProjectIdView = ({ projectId }: { projectId: Id<"projects"> }) => {
             </Allotment.Pane>
 
             <Allotment.Pane minSize={MIN_SIDEBAR_WIDTH}>
-              <p>Editor</p>
+              <EditorView projectId={projectId} />
             </Allotment.Pane>
           </Allotment>
         </div>

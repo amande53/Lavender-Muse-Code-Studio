@@ -1,5 +1,13 @@
 {
   "cSpell.words": ["Firecrawl", "firecrawl", "inngest"],
-  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescriptreact": "html",
+    "javascriptreact": "html"
+  },
+  "tailwindCSS.experimental.configFile": "src/app/globals.css",
+  "tailwindCSS.lint.suggestCanonicalClasses": "warning",
   "typescript.tsdk": "node_modules/typescript/lib"
 }

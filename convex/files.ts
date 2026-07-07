@@ -1,42 +1,8 @@
 import { v } from "convex/values";
 
-import { Id } from "./_generated/dataModel";
-import { mutation, query, type MutationCtx } from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 import { verifyAuth } from "./auth";
-
-const normalizeFileName = (name: string) => {
-  const trimmed = name.trim();
-
-  if (!trimmed) {
-    throw new Error("Name cannot be empty");
-  }
-
-  return trimmed;
-};
-
-const hasSiblingWithName = (
-  siblings: Array<{ name: string; _id: Id<"files"> }>,
-  name: string,
-  excludeId?: Id<"files">
-) => siblings.some((sibling) => sibling.name === name && sibling._id !== excludeId);
-
-const validateParentFolder = async (
-  ctx: MutationCtx,
-  projectId: Id<"projects">,
-  parentId?: Id<"files">
-) => {
-  if (!parentId) {
-    return null;
-  }
-
-  const parent = await ctx.db.get("files", parentId);
-
-  if (!parent || parent.projectId !== projectId || parent.type !== "folder") {
-    throw new Error("Invalid parent folder");
-  }
-
-  return parent;
-};
 
 export const getFiles = query({
   args: { projectId: v.id("projects") },
@@ -82,6 +48,53 @@ export const getFile = query({
     }
 
     return file;
+  },
+});
+
+/**
+ * Builds the full path to a file by traversing up the parent chain.
+ *
+ * Input:  A file ID (e.g., the ID of "button.tsx")
+ * Output: Array of ancestors from root to file: [{ _id, name: "src" }, { _id, name: "components" }, { _id, name: "button.tsx" }]
+ *
+ * Used for: Breadcrumbs navigation (src > components > button.tsx)
+ */
+export const getFilePath = query({
+  args: { id: v.id("files") },
+  handler: async (ctx, args) => {
+    const identity = await verifyAuth(ctx);
+
+    const file = await ctx.db.get("files", args.id);
+
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    const project = await ctx.db.get("projects", file.projectId);
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.ownerId !== identity.subject) {
+      throw new Error("Unauthorized to access this project");
+    }
+
+    const path: { _id: string; name: string }[] = [];
+    const visited = new Set<Id<"files">>();
+    let currentId: Id<"files"> | undefined = args.id;
+
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+
+      const currentFile = (await ctx.db.get("files", currentId)) as Doc<"files"> | undefined;
+      if (!currentFile) break;
+
+      path.unshift({ _id: currentFile._id, name: currentFile.name });
+      currentId = currentFile.parentId;
+    }
+
+    return path;
   },
 });
 
@@ -131,7 +144,6 @@ export const createFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    const name = normalizeFileName(args.name);
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -143,8 +155,6 @@ export const createFile = mutation({
       throw new Error("Unauthorized to access this project");
     }
 
-    await validateParentFolder(ctx, args.projectId, args.parentId);
-
     // Check if file with same name already exists in this parent folder
     const files = await ctx.db
       .query("files")
@@ -153,7 +163,7 @@ export const createFile = mutation({
       )
       .collect();
 
-    const existing = hasSiblingWithName(files, name);
+    const existing = files.find((file) => file.name === args.name && file.type === "file");
 
     if (existing) throw new Error("File already exists");
 
@@ -161,7 +171,7 @@ export const createFile = mutation({
 
     await ctx.db.insert("files", {
       projectId: args.projectId,
-      name,
+      name: args.name,
       content: args.content,
       type: "file",
       parentId: args.parentId,
@@ -182,7 +192,6 @@ export const createFolder = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    const name = normalizeFileName(args.name);
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -194,8 +203,6 @@ export const createFolder = mutation({
       throw new Error("Unauthorized to access this project");
     }
 
-    await validateParentFolder(ctx, args.projectId, args.parentId);
-
     // Check if folder with same name already exists in this parent folder
     const files = await ctx.db
       .query("files")
@@ -204,7 +211,7 @@ export const createFolder = mutation({
       )
       .collect();
 
-    const existing = hasSiblingWithName(files, name);
+    const existing = files.find((file) => file.name === args.name && file.type === "folder");
 
     if (existing) throw new Error("Folder already exists");
 
@@ -212,7 +219,7 @@ export const createFolder = mutation({
 
     await ctx.db.insert("files", {
       projectId: args.projectId,
-      name,
+      name: args.name,
       type: "folder",
       parentId: args.parentId,
       updatedAt: now,
@@ -231,7 +238,6 @@ export const renameFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    const newName = normalizeFileName(args.newName);
 
     const file = await ctx.db.get("files", args.id);
 
@@ -255,17 +261,20 @@ export const renameFile = mutation({
       )
       .collect();
 
-    const existing = hasSiblingWithName(siblings, newName, args.id);
+    const existing = siblings.find(
+      (sibling) =>
+        sibling.name === args.newName && sibling.type === file.type && sibling._id !== args.id
+    );
 
     if (existing) {
-      throw new Error("A file or folder with this name already exists in this location");
+      throw new Error(`A ${file.type} with this name already exists in this location`);
     }
 
     const now = Date.now();
 
     // Update the file's name
     await ctx.db.patch("files", args.id, {
-      name: newName,
+      name: args.newName,
       updatedAt: now,
     });
 
@@ -355,10 +364,6 @@ export const updateFile = mutation({
 
     if (project.ownerId !== identity.subject) {
       throw new Error("Unauthorized to access this project");
-    }
-
-    if (file.type !== "file" || file.storageId) {
-      throw new Error("Only text files can be updated");
     }
 
     const now = Date.now();
