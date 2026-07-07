@@ -53,9 +53,8 @@ export const CodeEditor = ({
     view.destroy()
     }
     
-    /**
-     * eslint-disable-next-line react-hooks/exhaustive-deps -- initialValue is only used for initial document
-     */
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialValue is only used for initial document
+   
   }, [languageExtension])
   return (
     <div ref={editorRef} className="size-full pl-4 bg-background"/>
