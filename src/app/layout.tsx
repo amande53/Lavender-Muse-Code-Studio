@@ -4,6 +4,7 @@ import { Fira_Code, Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body className={`${plusJakartaSans.variable} ${firaCode.variable} antialiased`}>
         <Providers>
             {children}
+          <Toaster />
         </Providers>
       </body>
     </html>
