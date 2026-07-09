@@ -5,7 +5,7 @@ import { FileBreadcrumbs } from "@/features/editor/hooks/file-breadcrunmbs";
 import { useEditor } from "@/features/editor/hooks/use-editor";
 import { useFile, useUpdateFile } from "@/features/projects/hooks/use-files";
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const DEBOUNCE_MS = 1500;
 
@@ -16,6 +16,16 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const isActiveFileBinary = activeFile && activeFile.storageId;
+
+  // Cleanup pending debounced updates on unmount or filechange
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [activeTabId])
+  
 
   return (
     <div className="h-full flex flex-col">
