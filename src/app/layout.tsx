@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import { Fira_Code, Plus_Jakarta_Sans } from "next/font/google";
-
-import { Providers } from "@/components/providers";
-
-import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/providers";
+import { Fira_Code, Plus_Jakarta_Sans } from "next/font/google";
+import type { Metadata } from "next";
+import "allotment/dist/style.css"
+import "./globals.css";
+
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
