@@ -21,7 +21,7 @@ export interface TextShimmerProps {
   children: string;
   as?: ShimmerElement;
   className?: string;
-  duration?: number;
+  duration?: number;g
   spread?: number;
 }
 
