@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "next-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "convex-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["convex", "dev"]
+    },
+    {
+      "name": "inngest-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["inngest-cli@latest", "dev", "-u", "http://localhost:3000/api/inngest"],
+      "port": 8288
+    }
+  ]
+}

@@ -64,7 +64,7 @@ export const ProjectsView = () => {
             alt="Lavender Muse Code logo"
             width={46}
             height={46}
-            className="size-[32px] md:size-[46px]"
+            className="size-8 md:size-11.5"
             priority
           />
           <h1 className={cn("text-4xl md:text-5xl font-semibold", font.className)}>
