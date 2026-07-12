@@ -40,7 +40,7 @@ export const processMessage = inngest.createFunction(
       // Update the message with error content
       if (internalKey) {
         await step.run("update-message-on-failure", async () => {
-          await convex.mutation(api.system.updateMessageContent, {
+          await convex.mutation(api.system.updateMessageFailure, {
             internalKey,
             messageId,
             content:

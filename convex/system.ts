@@ -95,6 +95,28 @@ export const updateMessageContent = mutation({
   },
 });
 
+export const updateMessageFailure = mutation({
+  args: {
+    internalKey: v.string(),
+    messageId: v.id("messages"),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const message = await ctx.db.get(args.messageId);
+
+    if (!message) {
+      throw new Error("Message not found");
+    }
+
+    await ctx.db.patch(args.messageId, {
+      content: args.content,
+      status: "cancelled" as const,
+    });
+  },
+});
+
 export const updateMessageStatus = mutation({
   args: {
     internalKey: v.string(),
@@ -465,13 +487,13 @@ export const deleteFile = mutation({
         }
       }
 
+      // Delete the file/folder itself
+      await ctx.db.delete(fileId);
+
       // Delete storage file if it exists
       if (item.storageId) {
         await ctx.storage.delete(item.storageId);
       }
-
-      // Delete the file/folder itself
-      await ctx.db.delete(fileId);
     };
 
     await deleteRecursive(args.fileId);

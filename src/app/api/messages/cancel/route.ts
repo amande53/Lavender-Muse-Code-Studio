@@ -50,29 +50,42 @@ export async function POST(req: Request) {
   if (processingMessages.length === 0) {
     return NextResponse.json({ success: true, cancelled: false });
   }
+
+  const cancelledIds: Id<"messages">[] = [];
+  const failedIds: { messageId: Id<"messages">; error: string }[] = [];
+
   // Cancel all processing messages
-  const cancelledIds = await Promise.all(
+  await Promise.all(
     processingMessages.map(async (msg: { _id: Id<"messages"> }) => {
-      await inngest.send({
-        name: "message/cancel",
-        data: {
+      try {
+        await inngest.send({
+          name: "message/cancel",
+          data: {
+            messageId: msg._id,
+          },
+        });
+
+        await convex.mutation(api.system.updateMessageStatus, {
+          internalKey,
           messageId: msg._id,
-        },
-      });
+          status: "cancelled",
+        });
 
-      await convex.mutation(api.system.updateMessageStatus, {
-        internalKey,
-        messageId: msg._id,
-        status: "cancelled",
-      });
-
-      return msg._id;
+        cancelledIds.push(msg._id);
+      } catch (error) {
+        failedIds.push({
+          messageId: msg._id,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+      }
     })
   );
 
   return NextResponse.json({
-    success: true,
-    cancelled: true,
+    success: failedIds.length === 0,
+    cancelled: cancelledIds.length > 0,
+    partial: failedIds.length > 0,
     messageId: cancelledIds,
+    failed: failedIds,
   });
 }
