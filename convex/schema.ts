@@ -6,11 +6,9 @@ export default defineSchema({
     name: v.string(),
     ownerId: v.string(),
     updatedAt: v.number(),
-
     importStatus: v.optional(
       v.union(v.literal("importing"), v.literal("completed"), v.literal("failed"))
     ),
-
     exportStatus: v.optional(
       v.union(
         v.literal("exporting"),
@@ -19,9 +17,10 @@ export default defineSchema({
         v.literal("cancelled")
       )
     ),
-
     exportRepoUrl: v.optional(v.string()),
-  }).index("by_owner", ["ownerId"]),
+  })
+    .index("by_owner", ["ownerId"])
+    .index("by_owner_updated", ["ownerId", "updatedAt"]),
 
   files: defineTable({
     projectId: v.id("projects"),
@@ -52,5 +51,5 @@ export default defineSchema({
     ),
   })
     .index("by_conversation", ["conversationId"])
-    .index("by_project", ["projectId", "status"]),
+    .index("by_project_status", ["projectId", "status"]),
 });
