@@ -1,10 +1,13 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig = {
-  async headers() { 
+  async headers() {
     return [
       {
-        source: "/:path*",
+        // WebContainer (preview/terminal) needs cross-origin isolation for
+        // SharedArrayBuffer. Scoped to /projects/* so the rest of the app
+        // (auth popups, embeds, etc.) isn't subject to these restrictions.
+        source: "/projects/:path*",
         headers: [
           {
             key: "Cross-Origin-Embedder-Policy",

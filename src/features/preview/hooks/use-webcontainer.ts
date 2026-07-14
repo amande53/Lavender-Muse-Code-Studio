@@ -61,17 +61,30 @@ export const useWebContainer = ({
   const containerRef = useRef<WebContainer | null>(null);
   const hasStartedRef = useRef(false);
   const generationRef = useRef(0);
+  const activeProjectIdRef = useRef<Id<"projects"> | null>(null);
 
   // Fetch files from Convex (auto-updates on change)
   const files = useFiles(projectId);
 
   // Initial boot and mount
   useEffect(() => {
-     if (!enabled || !files || files.length === 0 || hasStartedRef.current) {
+     if (!enabled || !files || files.length === 0) {
       return;
      }
-    
+
+     if (hasStartedRef.current) {
+      if (activeProjectIdRef.current === projectId) return;
+
+      // Switched to a different project while a container was already
+      // running - tear it down so the new project doesn't get mounted
+      // into (and contaminate) the previous project's filesystem.
+      generationRef.current++;
+      teardownWebContainer();
+      containerRef.current = null;
+     }
+
     hasStartedRef.current = true
+    activeProjectIdRef.current = projectId
 
     const start = async () => {
       // Each call to start() gets its own generation number. If restart()
@@ -141,6 +154,15 @@ export const useWebContainer = ({
           })
         )
 
+        // Don't await this: a healthy dev server never exits. Only react
+        // if it dies unexpectedly, so a failing dev command doesn't leave
+        // the UI stuck on "installing" forever.
+        devProcess.exit.then((code) => {
+          if (!isCurrent() || code === 0) return;
+          setError(`${devCmd} exited with code ${code}`);
+          setStatus("error");
+        });
+
       } catch (e) {
         if (!isCurrent()) return;
         setError(e instanceof Error ? e.message : "Unknown error");
@@ -151,6 +173,7 @@ export const useWebContainer = ({
     start();
   }, [
     enabled,
+    projectId,
     files,
     settings,
     restartKey,
@@ -159,18 +182,40 @@ export const useWebContainer = ({
   ])
 
   // Sync file changes (hot-reload)
+  const syncedContentRef = useRef<Map<Id<"files">, string>>(new Map());
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !files || status !== "running") return
 
     const fileMap = new Map(files.map((f) => [f._id, f]));
+    const previouslySynced = syncedContentRef.current;
+    const nowSynced = new Map<Id<"files">, string>();
 
-    for (const file of files) {
-      if (file.type !== "file" || !file.content || file.storageId) continue;
+    const syncFiles = async () => {
+      for (const file of files) {
+        if (file.type !== "file" || file.content === undefined || file.storageId) continue;
 
-      const filePath = getFilePath(file, fileMap);
-      container.fs.writeFile(filePath, file.content);
-    }
+        nowSynced.set(file._id, file.content);
+        if (previouslySynced.get(file._id) === file.content) continue;
+
+        const filePath = getFilePath(file, fileMap);
+        const dirPath = filePath.split("/").slice(0, -1).join("/");
+
+        try {
+          if (dirPath) {
+            await container.fs.mkdir(dirPath, { recursive: true });
+          }
+          await container.fs.writeFile(filePath, file.content);
+        } catch {
+          // Best-effort sync into the live container; a failed write
+          // here shouldn't take down the preview.
+        }
+      }
+      syncedContentRef.current = nowSynced;
+    };
+
+    syncFiles();
   }, [files, status]);
   
   // Reset when disabled
