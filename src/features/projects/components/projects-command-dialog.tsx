@@ -36,6 +36,9 @@ export const ProjectsCommandDialog = ({ open, onOpenChange }: ProjectsCommandDia
       case "failed":
         return <AlertCircleIcon className="size-4 text-muted-foreground" />;
 
+      case "completed_with_errors":
+        return <AlertCircleIcon className="size-4 text-amber-500" />;
+
       case "importing":
         return <Loader2Icon className="size-4 text-muted-foreground animate-spin" />;
 

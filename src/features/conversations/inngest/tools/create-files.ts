@@ -63,7 +63,7 @@ export const createCreateFilesTool = ({ projectId, internalKey }: CreateFilesToo
                 projectId,
                 fileId: resolvedParentId,
               });
-              if (!parentFolder) {
+              if (!parentFolder || parentFolder.projectId !== projectId) {
                 return `Error: Parent folder with ID "${parentId}" not found. Use listFiles to get valid folder IDs.`;
               }
               if (parentFolder.type !== "folder") {

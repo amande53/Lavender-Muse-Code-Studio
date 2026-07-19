@@ -9,6 +9,7 @@ import { FileExplorer } from "@/features/projects/components/file-explorer";
 import { cn } from "@/lib/utils";
 import { EditorView } from "@/features/editor/components/editor-view";
 import { PreviewView } from "@/features/projects/components/preview-view";
+import { ExportPopover } from "@/features/projects/components/file-explorer/export-popover";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 480;
@@ -56,10 +57,8 @@ export const ProjectIdView = ({ projectId }: { projectId: Id<"projects"> }) => {
         />
 
         <div className="flex h-full flex-1 justify-end">
-          <div className="flex h-full cursor-pointer items-center gap-1.5 border-l px-3 text-muted-foreground hover:bg-accent/30">
-            <FaGithub className="size-3.5" />
-            <span className="text-sm">Export</span>
-          </div>
+            <ExportPopover projectId={projectId} />
+
         </div>
       </nav>
 
