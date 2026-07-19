@@ -28,7 +28,10 @@ const getProjectIcon = (project: Doc<"projects">) => {
     
     case "failed":
       return <AlertCircleIcon className="size-3.5 text-muted-foreground" />;
-    
+
+    case "completed_with_errors":
+      return <AlertCircleIcon className="size-3.5 text-amber-500" />;
+
     case "importing":
       return <Loader2Icon className="size-3.5 text-muted-foreground animate-spin" />;
     

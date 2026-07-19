@@ -7,8 +7,14 @@ export default defineSchema({
     ownerId: v.string(),
     updatedAt: v.number(),
     importStatus: v.optional(
-      v.union(v.literal("importing"), v.literal("completed"), v.literal("failed"))
+      v.union(
+        v.literal("importing"),
+        v.literal("completed"),
+        v.literal("completed_with_errors"),
+        v.literal("failed")
+      )
     ),
+    importErrors: v.optional(v.array(v.string())),
     exportStatus: v.optional(
       v.union(
         v.literal("exporting"),

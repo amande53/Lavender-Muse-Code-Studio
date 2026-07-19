@@ -16,7 +16,7 @@ import { useProject, useRenameProject } from "@/features/projects/hooks/use-proj
 import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
-import { CloudCheckIcon, LoaderIcon } from "lucide-react";
+import { AlertCircleIcon, CloudCheckIcon, LoaderIcon } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -135,6 +135,16 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
               <LoaderIcon className="size-4 text-muted-foreground animate-spin" />
             </TooltipTrigger>
             <TooltipContent>Importing project...</TooltipContent>
+          </Tooltip>
+        ) : project?.importStatus === "completed_with_errors" ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <AlertCircleIcon className="size-4 text-amber-500" />
+            </TooltipTrigger>
+            <TooltipContent>
+              {project.importErrors?.length ?? 0} file
+              {project.importErrors?.length === 1 ? "" : "s"} failed to import
+            </TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>

@@ -68,11 +68,12 @@ export const get = query({
   handler: async (ctx) => {
     const identity = await verifyAuth(ctx);
 
-    return await ctx.db
+    const projects = await ctx.db
       .query("projects")
-      .withIndex("by_owner_updated", (q) => q.eq("ownerId", identity.subject))
-      .order("desc")
+      .withIndex("by_owner", (q) => q.eq("ownerId", identity.subject))
       .collect();
+
+    return projects.sort((a, b) => b.updatedAt - a.updatedAt);
   },
 });
 

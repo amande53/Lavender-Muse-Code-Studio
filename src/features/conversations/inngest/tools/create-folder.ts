@@ -46,7 +46,7 @@ export const createCreateFolderTool = ({ projectId, internalKey }: CreateFolderT
                 projectId,
                 fileId: parentId as Id<"files">,
               });
-              if (!parentFolder) {
+              if (!parentFolder || parentFolder.projectId !== projectId) {
                 return `Error: Parent folder with ID "${parentId}" not found. Use listFiles to get valid folder IDs.`;
               }
               if (parentFolder.type !== "folder") {
