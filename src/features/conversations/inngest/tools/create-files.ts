@@ -5,6 +5,7 @@ import { convex } from "@/lib/convex-client";
 
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import { invalidFileIdMessage,isValidFileId } from "./validate-file-id";
 
 interface CreateFilesToolOptions {
   projectId: Id<"projects">;
@@ -56,6 +57,10 @@ export const createCreateFilesTool = ({ projectId, internalKey }: CreateFilesToo
           let resolvedParentId: Id<"files"> | undefined;
 
           if (parentId && parentId !== "") {
+            if (!isValidFileId(parentId)) {
+              return invalidFileIdMessage(parentId);
+            }
+
             try {
               resolvedParentId = parentId as Id<"files">;
               const parentFolder = await convex.query(api.system.getFileById, {

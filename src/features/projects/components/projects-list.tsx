@@ -1,21 +1,16 @@
-// 1. Next.js imports
-import Link from "next/link";
-
-// 2. Third-party library imports
+// 1. Third-party library imports
 import { formatDistanceToNow } from "date-fns"
 import { AlertCircleIcon, ArrowRightIcon, GlobeIcon, Loader2Icon } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
-// 3. Local UI component imports
+import { Button } from "@/components/ui/button";
+// 2. Local UI component imports
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
-
-// 4. Type-only imports
+// 3. Type-only imports
 import type { Doc } from "@/convex/_generated/dataModel";
-
-// 5. Feature/hook imports
+// 4. Feature/hook imports
 import { useProjectsPartial } from "@/features/projects/hooks/use-projects";
-import { Button } from "@/components/ui/button";
 
 const formatTimestamp = (timestamp: number) => {
   return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
@@ -56,7 +51,10 @@ const ContinueCard = ({
         asChild
         className="h-auto items-start justify-start p-4 bg-background border rounded-none flex flex-col gap-2"
       >
-        <Link
+        {/* Plain <a>, not next/link's <Link> - the WebContainer preview
+            needs COOP/COEP isolation headers, which only apply on a fresh
+            document load, not a client-side SPA transition. */}
+        <a
           href={`/projects/${data._id}`}
           className="group"
         >
@@ -72,7 +70,7 @@ const ContinueCard = ({
           <span className="text-xs text-muted-foreground">
             {formatTimestamp(data.updatedAt)}
           </span>
-        </Link>
+        </a>
       </Button>
     </div>
   );
@@ -81,7 +79,10 @@ const ContinueCard = ({
 const ProjectItem = ({
   data
 }: { data: Doc<"projects"> }) => {
-  return <Link
+  // Plain <a>, not next/link's <Link> - the WebContainer preview needs
+  // COOP/COEP isolation headers, which only apply on a fresh document load,
+  // not a client-side SPA transition.
+  return <a
     href={`/projects/${data._id}`}
     className="text-sm text-foreground/60 font-medium hover:text-foreground py-1 flex items-center justify-between w-full group"
   >
@@ -90,7 +91,7 @@ const ProjectItem = ({
       <span className="truncate"> {data.name}</span>
     </div>
       <span className="text-xs text-muted-foreground group-hover:text-foreground/60 transition-colors">{formatTimestamp(data.updatedAt)}</span>
-  </Link>;
+  </a>;
 };
 
 export const ProjectsList = ({ onViewAll }: ProjectsListProps) => {

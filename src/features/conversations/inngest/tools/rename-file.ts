@@ -1,10 +1,11 @@
 import { createTool } from "@inngest/agent-kit";
 import { z } from "zod";
 
-import { convex } from "@/lib/convex-client";
-
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { convex } from "@/lib/convex-client";
+
+import { invalidFileIdMessage,isValidFileId } from "./validate-file-id";
 
 interface RenameFileToolOptions {
   internalKey: string;
@@ -31,6 +32,10 @@ export const createRenameFileTool = ({ internalKey, projectId }: RenameFileToolO
       }
 
       const { fileId, newName } = parsed.data;
+
+      if (!isValidFileId(fileId)) {
+        return invalidFileIdMessage(fileId);
+      }
 
       try {
         const file = await convex.query(api.system.getFileById, {

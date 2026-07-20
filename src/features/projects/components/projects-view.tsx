@@ -1,29 +1,27 @@
 "use client";
 
 // React
-import { useEffect, useState } from "react";
-
+import { SparkleIcon } from "lucide-react";
+import { Poppins } from "next/font/google";
 // Fonts
 import Image from "next/image";
-import { Poppins } from "next/font/google";
-
+import { useEffect, useState } from "react";
 // Icons
 import { FaGithub } from "react-icons/fa";
-import { SparkleIcon } from "lucide-react";
 
 // UI components
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
-import { ProjectsCommandDialog } from "./projects-command-dialog"
-import { ProjectsList } from "@/features/projects/components/projects-list";
 import { ImportGithubDialog } from "@/features/projects/components/file-explorer/import-github-dialog";
-
+import { NewProjectDialog } from "@/features/projects/components/new-project-dialog";
+import { ProjectsList } from "@/features/projects/components/projects-list";
 // Project data
 import { useCreateProject } from "@/features/projects/hooks/use-projects";
-
 // Utilities
 import { generateRandomName } from "@/lib/generate-name";
 import { cn } from "@/lib/utils";
+
+import { ProjectsCommandDialog } from "./projects-command-dialog"
 
 const font = Poppins({
   subsets: ["latin"],
@@ -35,6 +33,7 @@ export const ProjectsView = () => {
 
   const [commandDialogOpen, setCommandDialogOpen] = useState(false)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,11 +46,16 @@ export const ProjectsView = () => {
           e.preventDefault()
           setImportDialogOpen((current) => !current)
         }
+        if (e.key === "j") {
+          e.preventDefault()
+          setNewProjectDialogOpen((current) => !current)
+        }
       }
     }
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
+
 
 
   return (
@@ -63,6 +67,10 @@ export const ProjectsView = () => {
       <ImportGithubDialog
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}
+      />
+      <NewProjectDialog
+        open={newProjectDialogOpen}
+        onOpenChange={setNewProjectDialogOpen}
       />
       <div className="min-h-screen bg-sidebar flex flex-col items-center justify-center p-6 md:p-16">
         <div className="w-full max-w-sm mx-auto flex flex-col gap-4 items-center">
@@ -86,12 +94,7 @@ export const ProjectsView = () => {
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
-                onClick={() => {
-                  const projectName = generateRandomName(3);
-                  createProject({
-                    name: projectName,
-                  });
-                }}
+                onClick={() => { setNewProjectDialogOpen(true)}}
                 className="h-full items-start justify-start p-4 bg-background border flex flex-col gap-6 rounded-none hover:text-foreground text-foreground/60"
               >
                 <div className="flex items-center justify-between w-full">

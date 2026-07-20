@@ -1,6 +1,7 @@
-import { firecrawl } from "@/lib/firecrawl";
 import { createTool } from "@inngest/agent-kit";
 import { z } from "zod";
+
+import { firecrawl } from "@/lib/firecrawl";
 
 const paramsSchema = z.object({
   urls: z.array(z.url("Invalid URL format")).min(1, "Provide at least one URL to scrape"),

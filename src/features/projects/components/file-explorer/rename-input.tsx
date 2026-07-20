@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
-import { ChevronRightIcon } from "lucide-react";
 import { FileIcon, FolderIcon } from "@react-symbols/icons/utils";
-import { getItemPadding } from "./constants";
+import { ChevronRightIcon } from "lucide-react";
+import { useRef, useState } from "react";
+
 import { cn } from "@/lib/utils";
+
+import { getItemPadding } from "./constants";
 
 export const RenameInput = ({
   type,

@@ -1,19 +1,17 @@
-import React from "react";
 import { FileIcon } from "@react-symbols/icons/utils";
-
-import { useFilePath } from "@/features/projects/hooks/use-files";
-import { useEditor } from "@/features/editor/hooks/use-editor";
+import React from "react";
 
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbPage,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
 import { Id } from "@/convex/_generated/dataModel";
+import { useEditor } from "@/features/editor/hooks/use-editor";
+import { useFilePath } from "@/features/projects/hooks/use-files";
 
 export const FileBreadcrumbs = ({ projectId }: { projectId: Id<"projects"> }) => {
   const { activeTabId } = useEditor(projectId);

@@ -1,10 +1,11 @@
 import { createTool } from "@inngest/agent-kit";
 import { z } from "zod";
 
-import { convex } from "@/lib/convex-client";
-
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { convex } from "@/lib/convex-client";
+
+import { invalidFileIdMessage,isValidFileId } from "./validate-file-id";
 
 interface ReadFilesToolsOptions {
   internalKey: string;
@@ -38,6 +39,11 @@ export const createReadFilesTool = ({ internalKey, projectId }: ReadFilesToolsOp
           const results: { id: string; name: string; content: string }[] = [];
 
           for (const fileId of fileIds) {
+            if (!isValidFileId(fileId)) {
+              results.push({ id: fileId, name: fileId, content: invalidFileIdMessage(fileId) });
+              continue;
+            }
+
             const file = await convex.query(api.system.getFileById, {
               internalKey,
               projectId,

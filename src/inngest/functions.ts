@@ -1,9 +1,10 @@
 // src/inngest/functions.ts
-import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { generateText } from "ai";
+
+import { firecrawl } from "@/lib/firecrawl";
 
 import { inngest } from "./client";
-import { firecrawl } from "@/lib/firecrawl";
 
 const URL_REGEX = /https?:\/\/[^\s]+/g;
 

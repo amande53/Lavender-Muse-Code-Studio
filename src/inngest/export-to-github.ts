@@ -2,11 +2,10 @@ import { NonRetriableError } from "inngest";
 import ky from "ky";
 import { Octokit } from "octokit";
 
-import { inngest } from "@/inngest/client";
-import { convex } from "@/lib/convex-client";
-
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { inngest } from "@/inngest/client";
+import { convex } from "@/lib/convex-client";
 
 interface ExportToGithubEvent {
   projectId: Id<"projects">;
@@ -74,7 +73,7 @@ export const exportToGithub = inngest.createFunction(
 
     // GitHub rejects control characters (e.g. newlines) in the description field
     const sanitizedDescription = (description || "Exported from Muse")
-      // eslint-disable-next-line no-control-regex
+       
       .replace(/[\x00-\x1F\x7F]+/g, " ")
       .trim();
 

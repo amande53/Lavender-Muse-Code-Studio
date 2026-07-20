@@ -47,7 +47,12 @@ export const getFile = query({
       throw new Error("Unauthorized to access this project");
     }
 
-    return file;
+    if (file.storageId) {
+      const storageUrl = await ctx.storage.getUrl(file.storageId);
+      return { ...file, storageUrl };
+    }
+
+    return { ...file, storageUrl: null };
   },
 });
 

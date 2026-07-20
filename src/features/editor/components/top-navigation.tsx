@@ -1,13 +1,14 @@
 "use client";
 
+import { FileIcon } from "@react-symbols/icons/utils";
+import { XIcon } from "lucide-react";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { Id } from "@/convex/_generated/dataModel";
 import { useEditor } from "@/features/editor/hooks/use-editor";
 import { useFile } from "@/features/projects/hooks/use-files";
 import { cn } from "@/lib/utils";
-import { FileIcon } from "@react-symbols/icons/utils";
-import { XIcon } from "lucide-react";
 
 const Tab = ({
   fileId,

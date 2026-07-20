@@ -1,16 +1,17 @@
-import { useEffect, useMemo, useRef } from "react"
-import { EditorView } from "codemirror"
-import { oneDark } from "@codemirror/theme-one-dark"
 import {indentWithTab} from "@codemirror/commands"
-import { customTheme } from "@/features/editor/extensions/theme"
-import { getLanguageExtension } from "@/features/editor/extensions/language-extension"
-import { minimap } from "@/features/editor/extensions/minimap"
+import { oneDark } from "@codemirror/theme-one-dark"
 import { keymap } from "@codemirror/view"
 import {indentationMarkers} from "@replit/codemirror-indentation-markers"
+import { EditorView } from "codemirror"
+import { useEffect, useMemo, useRef } from "react"
+
 import { customSetup } from "@/features/editor/extensions/custom-setup"
-import { suggestion } from "@/features/editor/extensions/suggestion"
+import { getLanguageExtension } from "@/features/editor/extensions/language-extension"
+import { minimap } from "@/features/editor/extensions/minimap"
 import { quickEdit } from "@/features/editor/extensions/quick-edit"
 import { selectionTooltip } from "@/features/editor/extensions/selection-tooltip"
+import { suggestion } from "@/features/editor/extensions/suggestion"
+import { customTheme } from "@/features/editor/extensions/theme"
 
 interface Props {
   fileName: string
@@ -59,7 +60,7 @@ export const CodeEditor = ({
     view.destroy()
     }
     
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialValue is only used for initial document
+     
    
   }, [languageExtension])
   return (

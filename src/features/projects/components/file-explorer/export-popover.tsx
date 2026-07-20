@@ -1,4 +1,4 @@
-import { useClerk } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useForm } from "@tanstack/react-form";
 import ky, { HTTPError } from "ky";
 import {
@@ -6,8 +6,10 @@ import {
   CheckCircle2Icon,
   ExternalLinkIcon,
   LoaderIcon,
+  SparklesIcon,
   XCircleIcon,
 } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 import { FaGithub } from "react-icons/fa";
 import { toast } from "sonner";
@@ -16,6 +18,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -24,12 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import { Id } from "@/convex/_generated/dataModel";
-
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useProject } from "@/features/projects/hooks/use-projects";
-import Link from "next/link";
 
 const formSchema = z.object({
   repoName: z
@@ -50,6 +49,8 @@ interface ExportPopoverProps {
 
 export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
   const { openUserProfile } = useClerk();
+  const { isLoaded, has } = useAuth();
+  const hasPro = has?.({ plan: "pro" }) ?? false;
   const [open, setOpen] = React.useState(false);
   const project = useProject(projectId);
 
@@ -79,7 +80,22 @@ export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
         toast.success("Export started...");
       } catch (error) {
         if (error instanceof HTTPError) {
-          const body = await error.response.json<{ error: string }>();
+          const body = error.data as { error?: string } | undefined;
+
+          // Defensive fallback: the popover already gates on `hasPro` before
+          // showing this form, but the client's plan status can be briefly
+          // stale, so the server re-checks and can still reject the export.
+          if (body?.error?.includes("Pro Plan required")) {
+            toast.error("You need a Pro subscription to export GitHub repositories", {
+              action: {
+                label: "Upgrade to Pro",
+                onClick: () => openUserProfile(),
+              },
+            });
+
+            setOpen(false);
+            return;
+          }
 
           if (body?.error?.includes("reconnect your GitHub account")) {
             toast.error("GitHub account not connected", {
@@ -110,7 +126,7 @@ export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
       });
     } catch (error) {
       if (error instanceof HTTPError) {
-        const body = await error.response.json<{ error: string }>();
+        const body = error.data as { error?: string } | undefined;
         toast.error(body?.error ?? "Unable to cancel export.");
         return;
       }
@@ -129,7 +145,7 @@ export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
       setOpen(false);
     } catch (error) {
       if (error instanceof HTTPError) {
-        const body = await error.response.json<{ error: string }>();
+        const body = error.data as { error?: string } | undefined;
         toast.error(body?.error ?? "Unable to reset export state.");
         return;
       }
@@ -199,6 +215,28 @@ export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
             className="w-full"
           >
             Retry
+          </Button>
+        </div>
+      );
+    }
+
+    if (isLoaded && !hasPro) {
+      return (
+        <div className="flex flex-col items-center gap-3 text-center">
+          <SparklesIcon className="size-6 text-muted-foreground" />
+          <p className="text-sm font-medium">Export to GitHub is a Pro feature</p>
+          <p className="text-xs text-muted-foreground">
+            Upgrade to Pro to export this project to a GitHub repository.
+          </p>
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => {
+              setOpen(false);
+              openUserProfile();
+            }}
+          >
+            Upgrade to Pro
           </Button>
         </div>
       );

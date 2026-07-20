@@ -1,3 +1,6 @@
+import { anthropic, createAgent, createNetwork } from "@inngest/agent-kit";
+import { NonRetriableError } from "inngest";
+
 import { DEFAULT_CONVERSATION_TITLE } from "@/convex/constants";
 import { createCreateFilesTool } from "@/features/conversations/inngest/tools/create-files";
 import { createCreateFolderTool } from "@/features/conversations/inngest/tools/create-folder";
@@ -10,8 +13,7 @@ import { createUpdateFileTool } from "@/features/conversations/inngest/tools/upd
 import { inngest } from "@/inngest/client";
 import { CODING_AGENT_SYSTEM_PROMPT, TITLE_GENERATOR_SYSTEM_PROMPT } from "@/inngest/constants";
 import { convex } from "@/lib/convex-client";
-import { anthropic, createAgent, createNetwork } from "@inngest/agent-kit";
-import { NonRetriableError } from "inngest";
+
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
@@ -54,7 +56,11 @@ export const processMessage = inngest.createFunction(
     event: "message/sent",
   },
   async ({ event, step }) => {
-    const { messageId, conversationId, projectId, message } = event.data as MessageEvent;
+    const {
+      messageId,
+      conversationId,
+      projectId,
+      message } = event.data as MessageEvent;
 
     const internalKey = getInternalKey();
 
@@ -62,7 +68,6 @@ export const processMessage = inngest.createFunction(
       throw new NonRetriableError("MUSE_CONVEX_INTERNAL_KEY is not configured");
     }
 
-    //TODO: Check if this is needed
     await step.sleep("wait-for-db-sync", "1s");
 
     // Get conversation for title generation check

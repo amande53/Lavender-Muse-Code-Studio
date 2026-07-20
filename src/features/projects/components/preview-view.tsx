@@ -1,24 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { Allotment } from "allotment";
-import { Loader2Icon, TerminalSquareIcon, AlertTriangleIcon, RefreshCwIcon } from "lucide-react";
-
-import { useWebContainer } from "@/features/preview/hooks/use-webcontainer";
-import { PreviewSettingsPopover } from "@/features/preview/components/preview-settings-popover";
-import { PreviewTerminal } from "@/features/preview/components/preview-terminal";
+import { AlertTriangleIcon, Loader2Icon, RefreshCwIcon,TerminalSquareIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-
-import { useProject } from "../hooks/use-projects";
+import { PreviewSettingsPopover } from "@/features/preview/components/preview-settings-popover";
+import { PreviewTerminal } from "@/features/preview/components/preview-terminal";
+import { useWebContainer } from "@/features/preview/hooks/use-webcontainer";
 
 import { Id } from "../../../../convex/_generated/dataModel";
+import { useProject } from "../hooks/use-projects";
 
 export const PreviewView = ({ projectId }: { projectId: Id<"projects"> }) => {
   const project = useProject(projectId);
   const [showTerminal, setShowTerminal] = useState(true);
 
-  const { status, previewUrl, error, restart, terminalOutput } = useWebContainer({
+  const { status, previewUrl, error, restart, terminalOutput, container } = useWebContainer({
     projectId,
     enabled: true,
     settings: project?.settings,
@@ -116,7 +114,7 @@ export const PreviewView = ({ projectId }: { projectId: Id<"projects"> }) => {
                   <TerminalSquareIcon className="size-3" />
                   Terminal
                 </div>
-                <PreviewTerminal output={terminalOutput} />
+                <PreviewTerminal output={terminalOutput} container={container} />
               </div>
             </Allotment.Pane>
           )}

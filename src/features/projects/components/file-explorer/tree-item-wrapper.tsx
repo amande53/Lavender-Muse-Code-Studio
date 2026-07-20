@@ -6,10 +6,9 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { cn } from "@/lib/utils";
-
 import { Doc } from "@/convex/_generated/dataModel";
 import { getItemPadding } from "@/features/projects/components/file-explorer/constants";
+import { cn } from "@/lib/utils";
 
 export const TreeItemWrapper = ({
   item,

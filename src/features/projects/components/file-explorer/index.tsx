@@ -4,8 +4,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-
 import { Id } from "@/convex/_generated/dataModel";
 import { CreateInput } from "@/features/projects/components/file-explorer/create-input";
 import { LoadingRow } from "@/features/projects/components/file-explorer/loading-row";
@@ -16,6 +14,7 @@ import {
   useFolderContents,
 } from "@/features/projects/hooks/use-files";
 import { useProject } from "@/features/projects/hooks/use-projects";
+import { cn } from "@/lib/utils";
 
 export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
   const [isOpen, setIsOpen] = useState(true);

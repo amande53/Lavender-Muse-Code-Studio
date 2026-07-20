@@ -1,10 +1,9 @@
 "use client";
 import {Allotment} from "allotment"
 
-import { Navbar } from "@/features/projects/components/navbar";
-
 import type { Id } from "@/convex/_generated/dataModel"
 import { ConversationSideBar } from "@/features/conversations/components/conversation-sidebar";
+import { Navbar } from "@/features/projects/components/navbar";
 
 const MIN_SIDEBAR_WIDTH = 280
 const MAX_SIDEBAR_WIDTH = 520

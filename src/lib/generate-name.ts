@@ -1,16 +1,16 @@
 // src/lib/generate-name.ts
 
 import {
-  softCreativeWords,
-  codingTechWords,
-  fantasyMagicalWords,
-  darkElegantWords,
-  natureWords,
-  cosmicWords,
   btsInspiredWords,
+  btsUniverseWords,
+  codingTechWords,
+  cosmicWords,
+  darkElegantWords,
+  fantasyMagicalWords,
   kpopGroupWords,
   kpopInspiredWords,
-  btsUniverseWords,
+  natureWords,
+  softCreativeWords,
 } from "@/lib/name-dictionaries";
 
 type WordCategory = {

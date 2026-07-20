@@ -47,6 +47,30 @@ export const useRenameProject = (_projectId?: Id<"projects">) => {
 };
 
 export const useUpdateProjectSettings = () => {
-  // TODO: add optimistic mutation
-  return useMutation(api.projects.updateSettings);
+  return useMutation(api.projects.updateSettings).withOptimisticUpdate((localStore, args) => {
+    const existingProject = localStore.getQuery(api.projects.getById, { id: args.id });
+
+    if (existingProject !== undefined && existingProject !== null) {
+      localStore.setQuery(
+        api.projects.getById,
+        { id: args.id },
+        {
+          ...existingProject,
+          settings: args.settings,
+        }
+      );
+    }
+
+    const existingProjects = localStore.getQuery(api.projects.get);
+
+    if (existingProjects !== undefined) {
+      localStore.setQuery(
+        api.projects.get,
+        {},
+        existingProjects.map((project) =>
+          project._id === args.id ? { ...project, settings: args.settings } : project
+        )
+      );
+    }
+  });
 }
