@@ -1,5 +1,5 @@
-import { Tooltip, showTooltip, keymap, EditorView } from "@codemirror/view";
-import { StateField, EditorState, StateEffect } from "@codemirror/state";
+import { EditorState, StateEffect,StateField } from "@codemirror/state";
+import { EditorView,keymap, showTooltip, Tooltip } from "@codemirror/view";
 
 import { fetcher } from "./fetcher";
 

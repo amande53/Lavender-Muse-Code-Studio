@@ -1,33 +1,34 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
-import { WebContainer } from "@webcontainer/api";
-
 import "@xterm/xterm/css/xterm.css";
 
+import { WebContainer } from "@webcontainer/api";
+import { FitAddon } from "@xterm/addon-fit";
+import { Terminal } from "@xterm/xterm";
+import { useEffect, useRef } from "react";
 
-interface PreviewTerminalProps { 
+
+interface PreviewTerminalProps {
   output: string
+  container: WebContainer | null
 }
 
 
 
-export const PreviewTerminal = ({ output }: PreviewTerminalProps) => { 
+export const PreviewTerminal = ({ output, container }: PreviewTerminalProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const lastLengthRef = useRef(0);
-  
-  // Initialize the terminal 
+
+  // Initialize the terminal
   useEffect(() => {
     if (!containerRef.current || terminalRef.current) return;
 
     const terminal = new Terminal({
       convertEol: true,
       cursorBlink: true,
-      disableStdin: true,
+      disableStdin: false,
       fontSize: 12,
       fontFamily: "monospace",
       theme: {
@@ -39,7 +40,7 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     terminal.open(containerRef.current);
-    
+
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon
 
@@ -64,7 +65,7 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
    }, []);
 
   // Write output
-  useEffect(() => { 
+  useEffect(() => {
     if (!terminalRef.current) return;
     if (output.length < lastLengthRef.current) {
       terminalRef.current.clear();
@@ -77,6 +78,57 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
       lastLengthRef.current = output.length;
     }
   }, [output])
+
+  // Spawn an interactive shell in the container so the user can type
+  // commands, and pipe its I/O to/from the terminal.
+  useEffect(() => {
+    const terminal = terminalRef.current;
+    if (!container || !terminal) return;
+
+    let shellProcess: Awaited<ReturnType<WebContainer["spawn"]>> | null = null;
+    let inputWriter: WritableStreamDefaultWriter<string> | null = null;
+    let disposed = false;
+
+    const startShell = async () => {
+      const process = await container.spawn("jsh", {
+        terminal: { cols: terminal.cols, rows: terminal.rows },
+      });
+
+      if (disposed) {
+        process.kill();
+        return;
+      }
+
+      shellProcess = process;
+      inputWriter = process.input.getWriter();
+
+      process.output.pipeTo(
+        new WritableStream({
+          write(data) {
+            terminal.write(data);
+          },
+        })
+      );
+    };
+
+    startShell();
+
+    const onDataDisposable = terminal.onData((data) => {
+      inputWriter?.write(data);
+    });
+
+    const onResizeDisposable = terminal.onResize(({ cols, rows }) => {
+      shellProcess?.resize({ cols, rows });
+    });
+
+    return () => {
+      disposed = true;
+      onDataDisposable.dispose();
+      onResizeDisposable.dispose();
+      inputWriter?.releaseLock();
+      shellProcess?.kill();
+    };
+  }, [container])
 
   return (
     <div

@@ -1,12 +1,11 @@
-import { z } from "zod";
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-
-import { inngest } from "@/inngest/client";
-import { convex } from "@/lib/convex-client";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { inngest } from "@/inngest/client";
+import { convex } from "@/lib/convex-client";
 
 const requestSchema = z.object({
   projectId: z.string(),
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
   }
   //  Find all processing messages in this project
   const processingMessages = await convex.query(
-    (api.system as any).getProcessingMessages,
+    api.system.getProcessingMessages,
     {
       internalKey,
       projectId: projectId as Id<"projects">,

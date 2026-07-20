@@ -1,7 +1,6 @@
-import { cn } from "@/lib/utils"
 import { Spinner } from "@/components/ui/spinner"
-
 import { getItemPadding } from "@/features/projects/components/file-explorer/constants"
+import { cn } from "@/lib/utils"
 
 export const LoadingRow = ({
   className,

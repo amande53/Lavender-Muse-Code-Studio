@@ -1,10 +1,11 @@
 import { createTool } from "@inngest/agent-kit";
 import { z } from "zod";
 
-import { convex } from "@/lib/convex-client";
-
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { convex } from "@/lib/convex-client";
+
+import { invalidFileIdMessage,isValidFileId } from "./validate-file-id";
 
 interface CreateFolderToolOptions {
   projectId: Id<"projects">;
@@ -40,6 +41,10 @@ export const createCreateFolderTool = ({ projectId, internalKey }: CreateFolderT
         return await toolStep?.run("create-folder", async () => {
           // Validate parentId if provided
           if (parentId) {
+            if (!isValidFileId(parentId)) {
+              return invalidFileIdMessage(parentId);
+            }
+
             try {
               const parentFolder = await convex.query(api.system.getFileById, {
                 internalKey,

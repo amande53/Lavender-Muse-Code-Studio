@@ -1,13 +1,12 @@
+import { NonRetriableError } from "inngest";
+import { isBinaryFile } from "isbinaryfile";
 import ky from "ky";
 import { Octokit } from "octokit";
-import { isBinaryFile } from "isbinaryfile";
-import { NonRetriableError } from "inngest";
-
-import { convex } from "@/lib/convex-client";
-import { inngest } from "@/inngest/client";
 
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { inngest } from "@/inngest/client";
+import { convex } from "@/lib/convex-client";
 
 interface ImportGithubRepoEvent {
   owner: string;

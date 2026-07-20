@@ -1,13 +1,14 @@
 "use client";
 
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
-import { UnauthenticatedView } from "@/features/auth/components/unauthenticated-view";
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { Authenticated, AuthLoading, ConvexReactClient, Unauthenticated } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ThemeProvider } from "next-themes";
+
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
+import { UnauthenticatedView } from "@/features/auth/components/unauthenticated-view";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 

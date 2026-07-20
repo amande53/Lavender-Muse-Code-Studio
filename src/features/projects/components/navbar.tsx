@@ -1,5 +1,13 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
+import { formatDistanceToNow } from "date-fns";
+import { AlertCircleIcon, CloudCheckIcon, LoaderIcon } from "lucide-react";
+import { Poppins } from "next/font/google";
+import Image from "next/image";
+import Link from "next/link";
+import { useRef, useState } from "react";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,19 +16,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useProject, useRenameProject } from "@/features/projects/hooks/use-projects";
 import { cn } from "@/lib/utils";
-import { UserButton } from "@clerk/nextjs";
-import { formatDistanceToNow } from "date-fns";
-import { AlertCircleIcon, CloudCheckIcon, LoaderIcon } from "lucide-react";
-import { Poppins } from "next/font/google";
-import Image from "next/image";
-import Link from "next/link";
-import { useRef, useState } from "react";
 
 const font = Poppins({
   subsets: ["latin"],

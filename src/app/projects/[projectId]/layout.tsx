@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation";
+
 import type { Id } from "@/convex/_generated/dataModel";
 import { ProjectIdLayout } from "@/features/projects/components/project-id-layout";
-import { notFound } from "next/navigation";
 
 const PROJECT_ID_PATTERN = /^[a-z0-9]+$/;
 

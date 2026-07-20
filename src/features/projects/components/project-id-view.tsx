@@ -4,12 +4,13 @@ import { Allotment } from "allotment";
 import { useState } from "react";
 import { FaGithub } from "react-icons/fa";
 
-import { Id } from "../../../../convex/_generated/dataModel";
-import { FileExplorer } from "@/features/projects/components/file-explorer";
-import { cn } from "@/lib/utils";
 import { EditorView } from "@/features/editor/components/editor-view";
-import { PreviewView } from "@/features/projects/components/preview-view";
+import { FileExplorer } from "@/features/projects/components/file-explorer";
 import { ExportPopover } from "@/features/projects/components/file-explorer/export-popover";
+import { PreviewView } from "@/features/projects/components/preview-view";
+import { cn } from "@/lib/utils";
+
+import { Id } from "../../../../convex/_generated/dataModel";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 480;

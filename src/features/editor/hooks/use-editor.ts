@@ -1,6 +1,7 @@
 import { useCallback } from "react";
-import { useEditorStore } from "@/features/editor/store/use-editor-store";
+
 import { Id } from "@/convex/_generated/dataModel";
+import { useEditorStore } from "@/features/editor/store/use-editor-store";
 
 export const useEditor = (projectId: Id<"projects">) => {
   const store = useEditorStore();

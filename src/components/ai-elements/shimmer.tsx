@@ -1,9 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import type { CSSProperties } from "react";
 import { memo, useMemo } from "react";
+
+import { cn } from "@/lib/utils";
 
 type ShimmerElement = "div" | "h1" | "h2" | "h3" | "h4" | "p" | "span";
 

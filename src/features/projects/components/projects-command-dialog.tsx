@@ -1,6 +1,5 @@
-import { useRouter } from "next/navigation";
-import { FaGithub } from "react-icons/fa";
 import { AlertCircleIcon, GlobeIcon, Loader2Icon } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 
 import {
   CommandDialog,
@@ -10,9 +9,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
-import { useProjects } from "@/features/projects/hooks/use-projects";
 import { Doc } from "@/convex/_generated/dataModel";
+import { useProjects } from "@/features/projects/hooks/use-projects";
+import { navigateFullPage } from "@/lib/navigation";
 
 interface ProjectsCommandDialogProps {
   open: boolean;
@@ -20,12 +19,11 @@ interface ProjectsCommandDialogProps {
 }
 
 export const ProjectsCommandDialog = ({ open, onOpenChange }: ProjectsCommandDialogProps) => {
-  const router = useRouter();
   const projects = useProjects();
 
   const handleSelect = (projectId: string) => {
-    router.push(`/projects/${projectId}`);
     onOpenChange(false);
+    navigateFullPage(`/projects/${projectId}`);
   };
 
   const getProjectIcon = (project: Doc<"projects">) => {

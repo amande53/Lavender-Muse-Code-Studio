@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useQuery } from "convex/react";
 import { WebContainer } from "@webcontainer/api";
+import { useQuery } from "convex/react";
+import { useCallback, useEffect, useRef,useState } from "react";
+
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useFiles } from "@/features/projects/hooks/use-files";
 
 import {
   buildFileTree,
   getFilePath,
 } from "../utils/file-tree";
-
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useFiles } from "@/features/projects/hooks/use-files";
 
 // Singleton WebContainer instance
 let webcontainerInstance: WebContainer | null = null;
@@ -57,11 +57,13 @@ export const useWebContainer = ({
   const [error, setError] = useState<string | null>(null);
   const [restartKey, setRestartKey] = useState(0); // Used to force re-run the effect
   const [terminalOutput, setTerminalOutput] = useState("");
+  const [liveContainer, setLiveContainer] = useState<WebContainer | null>(null);
 
   const containerRef = useRef<WebContainer | null>(null);
   const hasStartedRef = useRef(false);
   const generationRef = useRef(0);
   const activeProjectIdRef = useRef<Id<"projects"> | null>(null);
+  const pendingTeardownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch files from Convex (auto-updates on change)
   const files = useFiles(projectId);
@@ -81,6 +83,7 @@ export const useWebContainer = ({
       generationRef.current++;
       teardownWebContainer();
       containerRef.current = null;
+      setLiveContainer(null);
      }
 
     hasStartedRef.current = true
@@ -106,6 +109,7 @@ export const useWebContainer = ({
         const container = await getWebContainer();
         if (!isCurrent()) return;
         containerRef.current = container;
+        setLiveContainer(container);
 
         const fileTree = buildFileTree(files);
         await container.mount(fileTree);
@@ -218,15 +222,59 @@ export const useWebContainer = ({
     syncFiles();
   }, [files, status]);
   
-  // Reset when disabled
-  useEffect(() => {
-  if (!enabled) { 
-    hasStartedRef.current = false;
-    setStatus("idle")
-    setPreviewUrl(null);
-    setError(null);
+  // Reset when disabled. Adjusted during render (not in a useEffect) per
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes -
+  // calling setState synchronously inside an effect causes an extra
+  // cascading render; doing it here lets React apply the reset before the
+  // browser paints the stale state.
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
+  if (enabled !== prevEnabled) {
+    setPrevEnabled(enabled);
+
+    if (!enabled) {
+      setStatus("idle");
+      setPreviewUrl(null);
+      setError(null);
+      setLiveContainer(null);
+    }
   }
+
+  // Refs can't be written during render, so this stays a plain effect -
+  // it only mutates a ref and calls no setState, so it's not subject to
+  // the same cascading-render concern as the reset above.
+  useEffect(() => {
+    if (!enabled) {
+      hasStartedRef.current = false;
+    }
   }, [enabled]);
+
+  // Tear down the singleton container when this hook's component unmounts
+  // entirely (e.g. navigating away to a different project's page). Without
+  // this, a later mount for a different project reuses the previous
+  // project's still-running container and filesystem.
+  //
+  // The teardown is deferred a tick and cancellable: React's Strict Mode
+  // double-invokes effects in dev (mount -> unmount -> remount, all
+  // synchronous) to surface missing cleanup, and WebContainer only allows
+  // one booted instance per tab. Tearing down immediately here would race
+  // the synthetic remount's reboot and throw "Unable to create more
+  // instances". A real unmount has nothing to cancel the timeout, so it
+  // still tears down as intended.
+  useEffect(() => {
+    if (pendingTeardownRef.current) {
+      clearTimeout(pendingTeardownRef.current);
+      pendingTeardownRef.current = null;
+    }
+
+    return () => {
+      pendingTeardownRef.current = setTimeout(() => {
+        generationRef.current++;
+        teardownWebContainer();
+        containerRef.current = null;
+        pendingTeardownRef.current = null;
+      }, 0);
+    };
+  }, []);
 
   // Restart the entire WebContainer process
   const restart = useCallback(() => {
@@ -239,6 +287,7 @@ export const useWebContainer = ({
     setStatus("idle");
     setPreviewUrl(null);
     setError(null);
+    setLiveContainer(null);
     setRestartKey((k) => k + 1);
   }, [])
   return {
@@ -246,6 +295,7 @@ export const useWebContainer = ({
     previewUrl,
     error,
     terminalOutput,
-    restart,  
+    restart,
+    container: liveContainer,
   }
 }

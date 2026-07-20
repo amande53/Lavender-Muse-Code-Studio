@@ -19,14 +19,15 @@ import {
   PromptInput,
   PromptInputBody,
   PromptInputFooter,
+  type PromptInputMessage,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-  type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { DEFAULT_CONVERSATION_TITLE } from "@/convex/constants";
+
 import {
   useConversation,
   useConversations,

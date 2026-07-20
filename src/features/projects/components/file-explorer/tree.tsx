@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
-
 import { FileIcon, FolderIcon } from "@react-symbols/icons/utils";
 import { ChevronRightIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
-
+import { useEditor } from "@/features/editor/hooks/use-editor";
+import { RenameInput } from "@/features/projects/components/file-explorer/rename-input";
 import {
   useCreateFile,
   useCreateFolder,
@@ -12,10 +12,8 @@ import {
   useFolderContents,
   useRenameFile,
 } from "@/features/projects/hooks/use-files";
+import { cn } from "@/lib/utils";
 
-import { useEditor } from "@/features/editor/hooks/use-editor";
-import { RenameInput } from "@/features/projects/components/file-explorer/rename-input";
-import { toast } from "sonner";
 import { Doc, Id } from "../../../../../convex/_generated/dataModel";
 import { getItemPadding } from "./constants";
 import { CreateInput } from "./create-input";
@@ -37,8 +35,14 @@ export const Tree = ({
   const [creating, setCreating] = useState<"file" | "folder" | null>(null);
   const renameRequestRef = useRef(0);
 
-  const renameFile = useRenameFile();
-  const deleteFile = useDeleteFile();
+  const renameFile = useRenameFile({
+    projectId,
+    parentId: item.parentId,
+  });
+  const deleteFile = useDeleteFile({
+    projectId,
+    parentId: item.parentId,
+  });
   const createFile = useCreateFile();
   const createFolder = useCreateFolder();
 
@@ -237,7 +241,7 @@ export const Tree = ({
         onClick={() => setIsOpen((value) => !value)}
         onRename={() => setIsRenaming(true)}
         onDelete={() => {
-          // TODO: Close tab
+       
           deleteFile({ id: item._id });
         }}
         onCreateFile={() => startCreating("file")}
